@@ -28,7 +28,7 @@ def hist2gmm(data, smooth=True, sigma=1, order=5, debug=False):
     peaks = np.hstack((0, peaks))
 
     n_components = len(peaks)
-    comp = create_gmm(data, peaks, bins, hist)
+    gmm = create_gmm(data, peaks, debug=debug)
 
     if debug:
         plt.figure()
@@ -37,17 +37,25 @@ def hist2gmm(data, smooth=True, sigma=1, order=5, debug=False):
 
         for p in peaks:
             plt.plot(p, hist[p], 'ro')
-        plt.show()
 
 
-def create_gmm(data, means, bins=None, hist=None, width=5):
-    if (bins is None) or (hist is None):
-        hist, bins = skiexp.histogram(data)
-
+def create_gmm(data, means, win_width=5, debug=False):
     n_comps = len(means)
     covs = np.zeros(n_comps)
     for i in range(n_comps):
-        band_idx = ((bins-width) <= means[i]) * (means[i] <= (bins+width))
+        inners_m = (data >= (means[i] - win_width)) * (data <= (means[i] + win_width))
+        inners = data[np.nonzero(inners_m)]
+        covs[i] = np.cov(inners)
 
-        # TODO: tady to musim predelat - takhle by to neslo
-        covs[i] = np.cov(bins[band_idx])
+    gmm = skimix.GMM(n_comps)
+    gmm.means_ = np.array(means.reshape(n_comps, 1))
+    gmm.covars_ = np.array(covs.reshape(n_comps, 1))
+
+    if debug:
+        colors = 'rgbcmy'
+        x = np.arange(0, 256, 1)
+        plt.figure()
+        for i in range(n_comps):
+            plt.plot(x, scista.norm(means[i], covs[i]).pdf(x), colors[np.mod(i, len(colors))])
+
+    return gmm

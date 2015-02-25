@@ -1,5 +1,7 @@
 __author__ = 'tomas'
 
+import matplotlib.pyplot as plt
+
 import tools
 
 import computational_core as cc
@@ -17,6 +19,9 @@ def run(fname, debug=False):
     data = tools.smoothing_tv(data)
 
     cc.hist2gmm(data, debug=debug)
+
+    if debug:
+        plt.show()
 
 
 ################################################################################
