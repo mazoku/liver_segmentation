@@ -6,6 +6,10 @@ import tools
 
 import computational_core as cc
 
+from PyQt4 import QtGui
+import Viewer_3D
+import sys
+
 
 def run(fname, debug=False):
     ext_list = ('pklz', 'pickle')
@@ -16,9 +20,21 @@ def run(fname, debug=False):
         msg = 'Wrong data type, supported extensions: ', ', '.join(ext_list)
         raise IOError(msg)
     orig_shape = data.shape
-    data = tools.smoothing_tv(data)
+    # data = tools.smoothing_tv(data, weight=0.05, sliceId=0)
+    # data = tools.smoothing_gauss(data, sigma=1, sliceId=0)
+    data = tools.smoothing_bilateral(data, sigma_space=5, sigma_color=0.02, sliceId=0)
 
-    cc.hist2gmm(data, debug=debug)
+    # cc.hist2gmm(data, debug=debug)
+    # cc.gmm_segmentation(data, debug=debug)
+    liver_rv = cc.estim_liver_prob_mod(data, debug=debug)
+
+    liver_prob = liver_rv.pdf(data)
+    app = QtGui.QApplication(sys.argv)
+    viewer = Viewer_3D.Viewer_3D(data)
+    viewer.show()
+    viewer2 = Viewer_3D.Viewer_3D(liver_prob, range=True)
+    viewer2.show()
+    sys.exit(app.exec_())
 
     if debug:
         plt.show()
@@ -61,4 +77,5 @@ if __name__ == '__main__':
     # fname = '/home/tomas/Data/liver_segmentation_06mm/hyperdenzni/org-exp_238_54280551_Abd_Venous_0.75_I26f_3-.pklz'
 
     debug = True
+
     run(fname, debug=debug)

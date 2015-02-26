@@ -241,17 +241,17 @@ def smoothing_bilateral(data, sigma_space=15, sigma_color=0.05, pseudo_3D='True'
     if data.ndim == 3 and pseudo_3D:
         if sliceId == 2:
             for idx in range(data.shape[2]):
-                temp = skifil.denoise_bilateral(data[:, :, idx], sigma_range=sigma_color, sigma_spatial=sigma_space)
-                # temp = skires.denoise_bilateral(data[:, :, idx], sigma_range=sigma_color, sigma_spatial=sigma_space)
+                # temp = skifil.denoise_bilateral(data[:, :, idx], sigma_range=sigma_color, sigma_spatial=sigma_space)
+                temp = skires.denoise_bilateral(data[:, :, idx], sigma_range=sigma_color, sigma_spatial=sigma_space)
                 data[:, :, idx] = (255 * temp).astype(np.uint8)
         elif sliceId == 0:
             for idx in range(data.shape[0]):
-                temp = skifil.denoise_bilateral(data[idx, :, :], sigma_range=sigma_color, sigma_spatial=sigma_space)
-                # temp = skires.denoise_bilateral(data[idx, :, :], sigma_range=sigma_color, sigma_spatial=sigma_space)
+                # temp = skifil.denoise_bilateral(data[idx, :, :], sigma_range=sigma_color, sigma_spatial=sigma_space)
+                temp = skires.denoise_bilateral(data[idx, :, :], sigma_range=sigma_color, sigma_spatial=sigma_space)
                 data[idx, :, :] = (255 * temp).astype(np.uint8)
     else:
-        data = skifil.denoise_bilateral(data, sigma_range=sigma_color, sigma_spatial=sigma_space)
-        # data = skires.denoise_bilateral(data, sigma_range=sigma_color, sigma_spatial=sigma_space)
+        # data = skifil.denoise_bilateral(data, sigma_range=sigma_color, sigma_spatial=sigma_space)
+        data = skires.denoise_bilateral(data, sigma_range=sigma_color, sigma_spatial=sigma_space)
         data = (255 * data).astype(np.uint8)
     return data
 
